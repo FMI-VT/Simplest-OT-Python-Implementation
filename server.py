@@ -34,7 +34,7 @@ else:
 	Bob=(Alice.__mul__(c)).__add__(g.__mul__(b))
 q.send(pickle.dumps(Bob,pickle.HIGHEST_PROTOCOL))
 
-m=hashlib.balke2s()
+m=hashlib.blake2s()
 m.update(str(Alice.__mul__(b)).encode())
 Bob_key=m.digest()
 cipher1 = AES.new(Bob_key, AES.MODE_ECB)

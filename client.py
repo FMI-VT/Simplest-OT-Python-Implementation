@@ -10,7 +10,6 @@ import Crypto
 from ecc import getcurvebyname
 from array import array
 import socket
-import Socket
 import pickle
 from socket import *  
 host="127.0.0.1"                                
