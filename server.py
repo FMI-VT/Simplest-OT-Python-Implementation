@@ -1,6 +1,8 @@
 #server
 # TCP Server Code
 from Crypto.Cipher import AES
+from Crypto.Cipher import DES
+from Crypto.Cipher import DES3
 import hashlib
 from hashlib import blake2s
 import pickle
@@ -38,7 +40,11 @@ def readFromClient():
 	m=hashlib.blake2s()
 	m.update(str(Alice.__mul__(b)).encode())
 	Bob_key=m.digest()
+	#Bob_key=m.digest()[:16] #DES3
+	#Bob_key=m.digest()[:8] #DES
 	cipher1 = AES.new(Bob_key, AES.MODE_ECB)
+	cipher1 = DES3.new(Bob_key, DES3.MODE_ECB)
+	cipher1 = DES.new(Bob_key, DES.MODE_ECB)
 	message=[1]*2
 	for i in range (2):
 		en=q.recv(1024)       
