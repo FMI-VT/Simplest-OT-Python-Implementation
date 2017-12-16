@@ -40,7 +40,7 @@ def readFromClient():
 	m=hashlib.blake2s()
 	m.update(str(Alice.__mul__(b)).encode())
 	Bob_key=m.digest()
-	#Bob_key=m.digest()[:16] #DES3
+	#Bob_key=m.digest()[:16] # or[:24] #DES3
 	#Bob_key=m.digest()[:8] #DES
 	cipher1 = AES.new(Bob_key, AES.MODE_ECB)
 	#cipher1 = DES3.new(Bob_key, DES3.MODE_ECB) #DES3
