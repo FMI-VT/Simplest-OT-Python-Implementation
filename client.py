@@ -1,6 +1,7 @@
 from Crypto.Cipher import AES
 from Crypto.Cipher import DES3
 from Crypto.Cipher import DES
+from Crypto.Cipher import Blowfish
 #from Crypto import Random
 #from Crypto.Util.number import getPrime
 #from Crypto.Util.number import getRandomInteger
@@ -40,6 +41,7 @@ def sendToServer():
 		#k=k.digest()[:16] # or[:24] #DES3
 		#k=k.digest()[:8] #DES
 		cipher= AES.new(k, AES.MODE_ECB)
+		#cipher= Blowfish.new(k, Blowfish.MODE_ECB) #Blowfish
 		#cipher= DES3.new(k, DES3.MODE_ECB) #DES3
 		#cipher= DES.new(k, DES.MODE_ECB) #DES
 		en=cipher.encrypt(var.encode())
