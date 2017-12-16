@@ -3,6 +3,7 @@
 from Crypto.Cipher import AES
 from Crypto.Cipher import DES
 from Crypto.Cipher import DES3
+from Crypto.Cipher import Blowfish
 import hashlib
 from hashlib import blake2s
 import pickle
@@ -43,6 +44,7 @@ def readFromClient():
 	#Bob_key=m.digest()[:16] # or[:24] #DES3
 	#Bob_key=m.digest()[:8] #DES
 	cipher1 = AES.new(Bob_key, AES.MODE_ECB)
+	cipher1 = Blowfish.new(Bob_key, Blowfish.MODE_ECB)
 	#cipher1 = DES3.new(Bob_key, DES3.MODE_ECB) #DES3
 	#cipher1 = DES.new(Bob_key, DES.MODE_ECB) #DES
 	message=[1]*2
