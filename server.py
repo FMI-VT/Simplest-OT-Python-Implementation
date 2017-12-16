@@ -43,8 +43,8 @@ def readFromClient():
 	#Bob_key=m.digest()[:16] #DES3
 	#Bob_key=m.digest()[:8] #DES
 	cipher1 = AES.new(Bob_key, AES.MODE_ECB)
-	cipher1 = DES3.new(Bob_key, DES3.MODE_ECB)
-	cipher1 = DES.new(Bob_key, DES.MODE_ECB)
+	#cipher1 = DES3.new(Bob_key, DES3.MODE_ECB) #DES3
+	#cipher1 = DES.new(Bob_key, DES.MODE_ECB) #DES
 	message=[1]*2
 	for i in range (2):
 		en=q.recv(1024)       
