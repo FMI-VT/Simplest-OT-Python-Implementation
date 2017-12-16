@@ -37,7 +37,7 @@ def sendToServer():
 		k=blake2s()
 		k.update(str((Bob.__add__(Alice.__neg__().__mul__(i))).__mul__(a)).encode())
 		k=k.digest()
-		#k=k.digest()[:16] #DES3
+		#k=k.digest()[:16] # or[:24] #DES3
 		#k=k.digest()[:8] #DES
 		cipher= AES.new(k, AES.MODE_ECB)
 		#cipher= DES3.new(k, DES3.MODE_ECB) #DES3
