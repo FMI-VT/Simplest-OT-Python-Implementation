@@ -1,4 +1,6 @@
 from Crypto.Cipher import AES
+from Crypto.Cipher import DES3
+from Crypto.Cipher import DES
 #from Crypto import Random
 #from Crypto.Util.number import getPrime
 #from Crypto.Util.number import getRandomInteger
@@ -35,7 +37,11 @@ def sendToServer():
 		k=blake2s()
 		k.update(str((Bob.__add__(Alice.__neg__().__mul__(i))).__mul__(a)).encode())
 		k=k.digest()
+		#k=k.digest()[:16] #3DES
+		#k=k.digest()[:8] #DES
 		cipher= AES.new(k, AES.MODE_ECB)
+		#cipher= AES.new(k, 3DES.MODE_ECB) #3DES
+		#cipher= AES.new(k, DES.MODE_ECB) #DES
 		en=cipher.encrypt(var.encode())
 		s.send(en)
 
