@@ -14,10 +14,57 @@ from ecc import getcurvebyname
 from array import array
 import socket
 import pickle
+import argparse
 from socket import *  
 host="127.0.0.1"                                
 port=4446      
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("e", type=int, choices=[0, 1, 2, 3],
+                    help="symmetric encryption algorithm [ 0 - AES, 1 - DES, 2 - 3DES, 3 - Blowfish]")
+parser.add_argument("-d", "--hash", type=int, choices=[0, 1, 2],
+                    help="hash function [0 - md5, 1 - blake2s, 2 - SHA256 ]")
+
+args = parser.parse_args()
+
+
+def getCipher( key ):
+   "This returns the Cipher based on the preffered algorithm -AES, DES, 3DES"
+   if args.e == 0:
+   	tempCipher = AES.new(key, AES.MODE_ECB)
+   elif args.e == 1:
+   	tempCipher = DES.new(key, DES.MODE_ECB)
+   elif args.e == 2:
+   	tempCipher = DES3.new(key, DES3.MODE_ECB)
+   elif args.e == 3:
+   	tempCipher = Blowfish.new(key, Blowfish.MODE_ECB)
+
+   return tempCipher
+
+def getKey( strValue ):
+    "Returns the key based on the chosen symmetric function"
+    if args.e == 0:
+    	#AES
+    	if args.hash == 0:
+        	tempKey=hashlib.md5()
+    	elif args.hash == 1:
+        	tempKey=hashlib.blake2s(digest_size=16)
+    	else:
+        	tempKey=hashlib.md5()
+		
+    elif args.e == 1:
+    	tempKey=hashlib.blake2s(digest_size=8) #DES
+    elif args.e == 2:
+    	tempKey=hashlib.blake2s(digest_size=16) #3DES
+    elif args.e == 3:
+    	tempKey=hashlib.blake2s() #Blowfish
+
+    tempKey.update(strValue)
+    tempKey=tempKey.digest()
+
+    return tempKey
+	
 
 
 def sendToServer():
@@ -35,15 +82,8 @@ def sendToServer():
 
 	for i in range (2):
 		var=message[i].ljust(64)
-		k=blake2s()
-		k.update(str((Bob.__add__(Alice.__neg__().__mul__(i))).__mul__(a)).encode())
-		k=k.digest()
-		#k=k.digest()[:16] # or[:24] #DES3
-		#k=k.digest()[:8] #DES
-		cipher= AES.new(k, AES.MODE_ECB)
-		#cipher= Blowfish.new(k, Blowfish.MODE_ECB) #Blowfish
-		#cipher= DES3.new(k, DES3.MODE_ECB) #DES3
-		#cipher= DES.new(k, DES.MODE_ECB) #DES
+		k = getKey(str((Bob.__add__(Alice.__neg__().__mul__(i))).__mul__(a)).encode())
+		cipher = getCipher(k)
 		en=cipher.encrypt(var.encode())
 		s.send(en)
 
@@ -55,7 +95,7 @@ s=socket(AF_INET, SOCK_STREAM)
 s.connect((host,port))
 
 
-for i in range (100):             
+for i in range (10):             
 	sendToServer()       
 
 s.close()       
