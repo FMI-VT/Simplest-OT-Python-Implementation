@@ -4,6 +4,7 @@ from Crypto.Cipher import AES
 from Crypto.Cipher import DES
 from Crypto.Cipher import DES3
 from Crypto.Cipher import Blowfish
+from Crypto.Cipher import ChaCha20
 import hashlib
 from hashlib import blake2s
 import pickle
@@ -22,13 +23,21 @@ port=4446
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("e", type=int, choices=[0, 1, 2, 3],
-                    help="symmetric encryption algorithm [ 0 - AES, 1 - DES, 2 - 3DES, 3 - Blowfish]")
+parser.add_argument("e", type=int, choices=[0, 1, 2, 3, 4],
+                    help="symmetric encryption algorithm [ 0 - AES, 1 - DES, 2 - 3DES, 3 - Blowfish, 4 - ChaCha20]")
 parser.add_argument("-d", "--hash", type=int, choices=[0, 1, 2],
                     help="hash function [0 - md5, 1 - blake2s, 2 - SHA256 ]")
 
 args = parser.parse_args()
 
+def decryptData( secret, msg):
+    "Decrypts the data based on the used cipher"
+    msg_nonce = msg[:8]
+    ciphertext = msg[8:]
+    cipher = ChaCha20.new(key=secret, nonce=msg_nonce)
+    decryptedData = cipher.decrypt(ciphertext)
+
+    return decryptedData
 
 def getCipher( key ):
    "This returns the Cipher based on the preffered algorithm -AES, DES, 3DES"
@@ -40,6 +49,8 @@ def getCipher( key ):
    	tempCipher = DES3.new(key, DES3.MODE_ECB)
    elif args.e == 3:
    	tempCipher = Blowfish.new(key, Blowfish.MODE_ECB)
+   elif args.e == 4:
+   	tempCipher = ChaCha20.new(key=key)
 
    return tempCipher
 
@@ -60,13 +71,15 @@ def getKey( strValue ):
     	tempKey=hashlib.blake2s(digest_size=16) #3DES
     elif args.e == 3:
     	tempKey=hashlib.blake2s() #Blowfish
+    elif args.e == 4:
+    	tempKey=hashlib.blake2s(digest_size=32) #ChaCha20
 
     tempKey.update(strValue)
     tempKey=tempKey.digest()
 
     return tempKey
 	
-
+	
 
 def readFromClient():
 
@@ -90,12 +103,16 @@ def readFromClient():
 	cipher1 = getCipher(k)
 	message=[1]*2
 	for i in range (2):
-		en=q.recv(1024)       
-		message[i]=cipher1.decrypt(en)
-		#print ('Message [',i,']',message[i].decode('iso-8859-15'))
+		en=q.recv(1024)
+		if args.e == 4:
+                	message[i] = decryptData(k, en)
+		else:
+                	message[i]=cipher1.decrypt(en)
+                
+		print ('Message [',i,']',message[i].decode('iso-8859-15'))
 	 
 	 
-#	print('#########################################################')           	             
+	print('#########################################################')           	             
 
 
 
@@ -115,6 +132,8 @@ elif args.e == 2:
 	print ("3DES encryption")
 elif args.e == 3:
 	print ("Blowfish encryption")
+elif args.e == 4:
+	print ("ChaCha20 encryption")
 q,addr=s.accept()
 
 start_time = time.time()
